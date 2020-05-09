@@ -4,6 +4,88 @@ alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 eng_alph_probs = [.082, .015, .028, .043, .127, .022, .020, .061, .070, .002, .008, .040, .024, .067, .075, .019, .001, .060, .063, .091, .028, .010, .023, .001, .020, .001]
 
 
+def mod_inverse(x, n):
+    # returns x_inv st x*xinv (mod n) = 1
+    for i in range(n):
+        if (x*i) % n == 1:
+            return i
+        
+        
+def fastModExp(b, e, n):  # Fast modular exponentiation e.g.: y = b^e mod n
+    # From Hannah
+    if (n == 1):
+        y = 0;
+        return
+    
+    y = 1
+    b = b % n
+    while ( e > 0 ):
+        if (e % 2 == 1):
+            y = (y*b) % n  # mod((y * b),n)
+            e = e >> 1  #bitshift(e,-1)
+            b = (b**2) % n
+            
+    return y
+    
+
+def rsa_encrypt(m, e, N): # c = m^e mod N 
+    post_exp = m**e
+    post_mod = post_exp % N
+    return post_mod
+    
+    
+# ModExp(a,k,n)
+def ModExp(a,k,n, debug):
+    k = str(bin(k))  # put it in binary
+    k_vals = k.split('b')
+    k_vals = k_vals[1]
+    b = 1
+    A = a
+    t = len(k_vals)
+    if k_vals[-1]=='1':
+        b = a
+    i = 1
+    while i < t:
+        A = A**2 % n
+        if k[-1-i] == '1':
+            b = (A*b) % n
+        if debug:
+            print("i= " +str(i)+", a= " +str(A)+ ", b= " +str(b))
+        i += 1
+    return b
+
+
+def gcd(m, n):
+    gcd = 1
+    larger = m
+    if n > m:
+        larger = n
+    for i in range(1, larger+1):
+        if m % i == 0 and n % i == 0: # i is a factor of m and n
+            gcd = i
+    return gcd
+
+
+# Then compute the exponent a from phi(n)
+# 1 < d < φ(N) and ed ≡ 1 mod φ(N)
+def compute_phi(n):
+    phi_of_n = []
+    for i in range(1, n):
+        gcd_val = gcd(i, n)
+        if gcd_val == 1:
+            phi_of_n.append(i)
+    return phi_of_n
+
+
+def factor(n: int):
+    factors = []
+    for i in range(1,n+1):
+        if n % i == 0:
+            factors.append(i)
+            
+    return factors
+
+
 def let_to_num(letter):
   return alphabet.index(letter)
 
@@ -116,3 +198,25 @@ def calc_M(text):
   print('H-N: ' + ' '.join(Mg[7:14]))
   print('O-U: ' + ' '.join(Mg[14:21]))
   print('V-Z: ' + ' '.join(Mg[21:26]))
+    
+
+def word_2_base26ish(word):
+    total = 0
+    d = len(word)
+    for i in range(d):
+        total = total + (let_to_num(word[i])*(26**(d-i-1)))
+        
+    return total
+# This is the wrong way, ...
+
+# now reverse it
+def base26ish_2_word(value):
+    total = 0
+    word = ['','','']
+    for i in range(2,-1,-1):
+        letter = value // (26**i)
+        word[2-i] = (num_to_let(letter))
+        value = value - (letter*(26**i))
+        
+    return word
+
