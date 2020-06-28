@@ -1,1 +1,1 @@
-This is for my DevOps class. The first test is to see if this commit triggers a Jenkins build.
+This is a repo for my part time study classes with the JHU EP program.
